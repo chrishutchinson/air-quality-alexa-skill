@@ -1,0 +1,15 @@
+{
+  "name": "alexa-air-quality",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "scripts": {
+    "deploy": "serverless deploy",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Chris Hutchinson",
+  "license": "ISC",
+  "dependencies": {
+    "defra-air-quality-js": "^1.0.0"
+  }
+}
