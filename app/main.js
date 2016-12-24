@@ -2,6 +2,8 @@
 
 const airQuality = require('defra-air-quality-js');
 
+const lang = require('./lang/en');
+
 module.exports = {
 
   launch: (callback) => {
@@ -10,7 +12,7 @@ module.exports = {
       response: {
         outputSpeech: {
           type: 'PlainText',
-          text: `You can ask for the latest air quality data for a given location, like so: "Ask air quality what is the air quality today in Liverpool".`
+          text: lang.get('launch')
         }
       }
     });
@@ -22,10 +24,8 @@ module.exports = {
         this.getIndexDescription(event, callback);
         return;
       case 'GetAirQuality':
-        this.getAirQuality(event, callback);
-        return;
       default:
-        this.launch(callback);
+        this.getAirQuality(event, callback);
         return;
     }
   },
@@ -36,7 +36,7 @@ module.exports = {
       response: {
         outputSpeech: {
           type: 'PlainText',
-          text: `Description of the index here.`
+          text: lang.get('description')
         }
       }
     });
@@ -51,7 +51,7 @@ module.exports = {
         response: {
           outputSpeech: {
             type: 'PlainText',
-            text: `Please provide a city or location to check the air quality for. For example: "Ask air quality what is the air quality today in Liverpool".`
+            text: lang.get('invalidCity')
           }
         }
       });
@@ -66,7 +66,7 @@ module.exports = {
         });
       })
       .then(locations => {
-        let message = `I'm sorry, I couldn't find any monitoring stations in ${city}.`;
+        let message = lang.get('noMatchingLocation', { city: city });
 
         if(locations.length === 0) {
           return message;

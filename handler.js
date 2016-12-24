@@ -1,6 +1,6 @@
 'use strict';
 
-const env = require('./env.json');
+const env = require('./.env.json');
 
 const app = require('./app/main');
 
