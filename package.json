@@ -11,5 +11,11 @@
   "license": "ISC",
   "dependencies": {
     "defra-air-quality-js": "^1.0.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
+    "proxyquire": "^1.7.10",
+    "sinon": "^1.17.6"
   }
 }

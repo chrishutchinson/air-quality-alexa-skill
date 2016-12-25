@@ -1,10 +1,10 @@
 'use strict';
 
-const env = require('./.env.json');
+var env = require('./.env.json');
 
-const app = require('./app/main');
+var app = require('./app/main');
 
-const validation = {
+var validation = {
   isValidEvent: (event) => {
     try {
       return (event.session.application.applicationId === env.applicationId);
@@ -35,4 +35,6 @@ module.exports.quality = (event, context, callback) => {
       // Session ended, cannot send response (may want to log here)
       return;
   }
+
+  callback(null, {});
 };
