@@ -1,11 +1,18 @@
 'use strict';
 
+// Import Defra Air Quality parses
 const airQuality = require('defra-air-quality-js');
 
-const lang = require('./lang/en');
+// Import language strings
+const lang = require('./lang/main')('en');
 
 module.exports = {
 
+  /**
+   * Launch handler
+   *
+   * @param {function} callback - the callback to use upon completion
+   */ 
   launch: (callback) => {
     callback(null, {
       version: '1.0',
@@ -19,6 +26,12 @@ module.exports = {
     });
   },
 
+  /**
+   * Intent handler
+   *
+   * @param {object} event - the Alexa intent event object
+   * @param {function} callback - the callback to use upon completion
+   */
   intent: function(event, callback) {
     switch(event.request.intent.name) {
       case 'GetIndexDescription':
@@ -31,6 +44,12 @@ module.exports = {
     }
   },
 
+  /**
+   * Returns the description of the Defra Air Quality Index (AQI)
+   *
+   * @param {object} event - the Alexa intent event object
+   * @param {function} callback - the callback to use upon completion
+   */
   getIndexDescription: (event, callback) => {
     callback(null, {
       version: '1.0',
@@ -43,6 +62,12 @@ module.exports = {
     });
   },
 
+  /**
+   * Returns the air quality value and additional information for the given city
+   *
+   * @param {object} event - the Alexa intent event object
+   * @param {function} callback - the callback to use upon completion
+   */
   getAirQuality: (event, callback) => {
     const city = event.request.intent.slots.City.value;
 

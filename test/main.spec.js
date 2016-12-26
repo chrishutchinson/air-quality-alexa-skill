@@ -1,7 +1,7 @@
 // Import chai.
 const chai = require('chai');
 const sinon = require('sinon');
-const lang = require('../app/lang/en');
+const lang = require('../app/lang/main')('en');
 const proxyquire = require('proxyquire');
 
 // Tell chai that we'll be using the "should" style assertions.
