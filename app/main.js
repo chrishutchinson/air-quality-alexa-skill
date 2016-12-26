@@ -13,7 +13,8 @@ module.exports = {
         outputSpeech: {
           type: 'PlainText',
           text: lang.get('launch')
-        }
+        },
+        shouldEndSession: false
       }
     });
   },
@@ -95,6 +96,8 @@ module.exports = {
           message += [locationNames.slice(0, -1).join(', '),locationNames.slice(-1)[0]]
                       .join(locationNames.length < 2 ? '' : ' and ');        
         }
+
+        console.log(message);
 
         return message;
       })

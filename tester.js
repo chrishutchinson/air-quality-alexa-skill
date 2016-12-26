@@ -36,6 +36,6 @@ handler.quality(JSON.parse(json), {}, (err, res) => {
   if(err) {
     console.log('[ERR]', err);
   } else {
-    console.log(res);
+    console.log(res.response.outputSpeech.text);
   }
 });

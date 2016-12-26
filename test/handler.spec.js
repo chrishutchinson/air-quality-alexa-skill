@@ -106,6 +106,29 @@ describe('handler', () => {
 
     });
 
+    it('should not call any methods when a SessionEndedRequest is made', (done) => {
+      sinon.spy(mainStub, 'launch');
+      sinon.spy(mainStub, 'intent');
+
+      handler.quality({
+        session: {
+          application: {
+            applicationId: 'sample-application-id'
+          }
+        },
+        request: {
+          type: 'SessionEndedRequest'
+        }
+      }, {}, () => { });
+      mainStub.intent.notCalled.should.be.true;
+      mainStub.launch.notCalled.should.be.true;
+      mainStub.intent.restore();
+      mainStub.launch.restore();
+
+      done();
+
+    });
+
   });
 
 });
