@@ -23,7 +23,7 @@ const json = `{
       "slots": {
         "City": {
           "name": "City",
-          "value": "jcdklsajfds"
+          "value": "London"
         }
       }
     }
@@ -36,6 +36,6 @@ handler.quality(JSON.parse(json), {}, (err, res) => {
   if(err) {
     console.log('[ERR]', err);
   } else {
-    console.log(res.response.outputSpeech.text);
+    console.log(res);
   }
 });

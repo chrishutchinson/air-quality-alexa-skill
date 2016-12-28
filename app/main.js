@@ -38,10 +38,54 @@ module.exports = {
         this.getIndexDescription(event, callback);
         return;
       case 'GetAirQuality':
-      default:
         this.getAirQuality(event, callback);
         return;
+      case 'AMAZON.HelpIntent':
+        this.help(event, callback);
+        return;
+      case 'AMAZON.StopIntent':
+      case 'AMAZON.CancelIntent':
+        this.stop(event, callback);
+        return;
+      default:
+        this.unknownIntent(event, callback);
+        return;
     }
+  },
+
+  unknownIntent: (event, callback) => {
+    callback(null, {
+      version: '1.0',
+      response: {
+        outputSpeech: {
+          type: 'PlainText',
+          text: lang.get('unknownIntent')
+        },
+        shouldEndSession: false
+      }
+    });
+  },
+
+  help: (event, callback) => {
+    callback(null, {
+      version: '1.0',
+      response: {
+        outputSpeech: {
+          type: 'PlainText',
+          text: lang.get('help')
+        },
+        shouldEndSession: false
+      }
+    });
+  },
+
+  stop: (event, callback) => {
+    callback(null, {
+      version: '1.0',
+      response: {
+        shouldEndSession: true
+      }
+    });
   },
 
   /**
@@ -92,10 +136,14 @@ module.exports = {
         });
       })
       .then(locations => {
+        let shouldEndSession = true;
         let message = lang.get('noMatchingLocation', { city: city });
 
         if(locations.length === 0) {
-          return message;
+          return {
+            message: message,
+            shouldEndSession: shouldEndSession
+          };
         }
 
         const location = locations[0];
@@ -119,14 +167,20 @@ module.exports = {
           message += ` I have found ${locations.length} other ${(locations.length === 1 ? 'station' : 'stations')} in the location you requested, you might want to try${(locations.length === 1 ? ': ' : ' one of these: ')}`;
 
           message += [locationNames.slice(0, -1).join(', '),locationNames.slice(-1)[0]]
-                      .join(locationNames.length < 2 ? '' : ' and ');        
+                      .join(locationNames.length < 2 ? '' : ' and ');
+
+          shouldEndSession = false;    
         }
 
-        console.log(message);
-
-        return message;
+        return {
+          message: message,
+          shouldEndSession: shouldEndSession
+        };
       })
-      .then(message => {
+      .then(responseData => {
+        const message = responseData.message;
+        const shouldEndSession = responseData.shouldEndSession;
+
         return {
           version: '1.0',
           response: {
@@ -134,6 +188,7 @@ module.exports = {
               type: 'PlainText',
               text: message
             },
+            shouldEndSession: shouldEndSession,
             card: {
               type: 'Simple',
               title: 'UK Air quality check',
