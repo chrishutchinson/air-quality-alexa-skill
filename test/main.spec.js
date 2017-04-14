@@ -8,41 +8,37 @@ const proxyquire = require('proxyquire');
 const should = chai.should();
 
 const app = proxyquire('../app/main', {
-  'defra-air-quality-js': () => {
-    return new Promise((fulfill, reject) => {
-      fulfill([
-        {
-          title: 'Oxford St Ebbes',
-          link: 'http://uk-air.defra.gov.uk/data/site-data?f_site_id=OX8&view=last_hour',
-          location: 'Location: 51°44´41.30"N    1°15´37.00"W ',
-          description: 'Current Pollution level is Low at index 1',
-          level: 'Low',
-          index: '1'
-        },
-        {
-          title: 'Reading Central',
-          link: 'http://uk-air.defra.gov.uk/data/site-data?f_site_id=REA5&view=last_hour',
-          location: 'Location: 51°27´17.63"N    0°56´25.38"W ',
-          description: 'Current Pollution level is Low at index 2',
-          level: 'Low',
-          index: '2'
-        },
-        {
-          title: 'Reading London Rd.',
-          link: 'http://uk-air.defra.gov.uk/data/site-data?f_site_id=REA5&view=last_hour',
-          location: 'Location: 51°27´17.63"N    0°56´25.38"W ',
-          description: 'Current Pollution level is Low at index 1',
-          level: 'Low',
-          index: '1'
-        },
-        {
-          title: 'London Teddington',
-          link: 'http://uk-air.defra.gov.uk/data/site-data?f_site_id=REA5&view=last_hour',
-          location: 'Location: 51°27´17.63"N    0°56´25.38"W '
-        }
-      ]);
-    });
-  }
+  'defra-air-quality-js': () => Promise.resolve([
+    {
+      title: 'Oxford St Ebbes',
+      link: 'http://uk-air.defra.gov.uk/data/site-data?f_site_id=OX8&view=last_hour',
+      location: 'Location: 51°44´41.30"N    1°15´37.00"W ',
+      description: 'Current Pollution level is Low at index 1',
+      level: 'Low',
+      index: '1'
+    },
+    {
+      title: 'Reading Central',
+      link: 'http://uk-air.defra.gov.uk/data/site-data?f_site_id=REA5&view=last_hour',
+      location: 'Location: 51°27´17.63"N    0°56´25.38"W ',
+      description: 'Current Pollution level is Low at index 2',
+      level: 'Low',
+      index: '2'
+    },
+    {
+      title: 'Reading London Rd.',
+      link: 'http://uk-air.defra.gov.uk/data/site-data?f_site_id=REA5&view=last_hour',
+      location: 'Location: 51°27´17.63"N    0°56´25.38"W ',
+      description: 'Current Pollution level is Low at index 1',
+      level: 'Low',
+      index: '1'
+    },
+    {
+      title: 'London Teddington',
+      link: 'http://uk-air.defra.gov.uk/data/site-data?f_site_id=REA5&view=last_hour',
+      location: 'Location: 51°27´17.63"N    0°56´25.38"W '
+    }
+  ])
 });
 
 describe('main', () => {
@@ -157,7 +153,7 @@ describe('main', () => {
     it('should return a successful response in the callback with a multi-city message if a multiple matching cities are found', (done) => {
       app.getAirQuality(buildRequest('Reading'), (err, res) => {
         should.equal(err, null);
-        res.response.outputSpeech.text.should.equal(`At the Reading Central monitoring station, the current pollution level is low at index 2. I have found 1 other station in the location you requested, you might want to try: Reading London Rd.`);
+        res.response.outputSpeech.text.should.equal(`At the Reading Central monitoring station, the current pollution level is low at index 2. I have found 1 other station in the location you requested, you might want to try this next time: Reading London Rd.`);
         
         done();
       })
