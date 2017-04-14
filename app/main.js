@@ -9,47 +9,11 @@ const lang = require('./lang/main')('en');
 // Import fetch
 const fetchHelper = require('./helpers/fetch');
 
-const buildResponse = (message, shouldEndSession) => ({
-  version: '1.0',
-  response: {
-    outputSpeech: {
-      type: 'PlainText',
-      text: message,
-    },
-    shouldEndSession: shouldEndSession,
-    card: {
-      type: 'Simple',
-      title: 'UK Air quality check',
-      content: message,
-    },
-  },
-});
+// Import Alexa address helper
+const getAlexaAddress = require('./helpers/get-alexa-address');
 
-const getAlexaAddress = (deviceId, consentToken, apiEndpoint) => {
-  return new Promise((resolve, reject) => {
-    if (!deviceId) return reject(new Error('Invalid device ID'));
-    if (!consentToken) return reject(new Error('Invalid consent token'));
-    if (!apiEndpoint) return reject(new Error('Invalid API endpoint'));
-
-    fetchHelper
-      .fetch(
-        `${apiEndpoint}/v1/devices/${deviceId}/settings/address/countryAndPostalCode`,
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${consentToken}`,
-          },
-        }
-      )
-      .then(response => response.json())
-      .then(json => {
-        resolve(json);
-      })
-      .catch(err => {
-        reject(err);
-      });
-  });
-};
+// Import Alexa response builder
+const buildResponse = require('./helpers/build-alexa-response');
 
 module.exports = {
   /**
@@ -57,7 +21,6 @@ module.exports = {
    *
    * @param {function} callback - the callback to use upon completion
    */
-
   launch: callback => {
     callback(null, {
       version: '1.0',
