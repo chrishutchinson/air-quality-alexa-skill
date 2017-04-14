@@ -19,4 +19,7 @@ module.exports = {
 
   unknownError: data =>
     `I'm sorry, I'm not able to access DEFRA's Air Quality data right now, please try again later.`,
+
+  requestFurtherPermissions: data =>
+    `To ask for Air Quality data by postcode, you must grant additional permissions. Please check the Alexa app, where you can grant these, and try asking again. If you choose not to grant these permissions, you can still ask for air quality data, but must ask for a specific location, like so: "Alexa ask Air Quality what is it like today in Liverpool".`,
 };

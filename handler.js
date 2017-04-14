@@ -52,4 +52,13 @@ module.exports.quality = (event, context, callback) => {
 
   // If all else fails, send an empty response
   callback(null, {});
+
+  // console.log('event', event);
+  // console.log('event.session.user.permissions', event.session.user.permissions);
+  // console.log(
+  //   'event.context.System.application',
+  //   event.context.System.application
+  // );
+  // console.log('event.context.System.user', event.context.System.user);
+  // console.log('event.context.System.device', event.context.System.device);
 };

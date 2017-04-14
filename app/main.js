@@ -6,6 +6,9 @@ const airQuality = require('./air-quality');
 // Import language strings
 const lang = require('./lang/main')('en');
 
+// Import fetch
+const fetchHelper = require('./helpers/fetch');
+
 const buildResponse = (message, shouldEndSession) => ({
   version: '1.0',
   response: {
@@ -21,6 +24,32 @@ const buildResponse = (message, shouldEndSession) => ({
     },
   },
 });
+
+const getAlexaAddress = (deviceId, consentToken, apiEndpoint) => {
+  return new Promise((resolve, reject) => {
+    if (!deviceId) return reject(new Error('Invalid device ID'));
+    if (!consentToken) return reject(new Error('Invalid consent token'));
+    if (!apiEndpoint) return reject(new Error('Invalid API endpoint'));
+
+    fetchHelper
+      .fetch(
+        `${apiEndpoint}/v1/devices/${deviceId}/settings/address/countryAndPostalCode`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${consentToken}`,
+          },
+        }
+      )
+      .then(response => response.json())
+      .then(json => {
+        resolve(json);
+      })
+      .catch(err => {
+        reject(err);
+      });
+  });
+};
 
 module.exports = {
   /**
@@ -54,7 +83,10 @@ module.exports = {
         this.getIndexDescription(event, callback);
         return;
       case 'GetAirQuality':
-        this.getAirQuality(event, callback);
+        this.getCityAirQuality(event, callback);
+        return;
+      case 'GetLocalAirQuality':
+        this.getLocalAirQuality(event, callback);
         return;
       case 'AMAZON.HelpIntent':
         this.help(event, callback);
@@ -122,13 +154,54 @@ module.exports = {
     });
   },
 
+  getLocalAirQuality: (event, callback) => {
+    const deviceId = event.context.System.device.deviceId;
+    const consentToken = event.context.System.user.permissions.consentToken;
+    const apiEndpoint = event.context.System.apiEndpoint;
+
+    getAlexaAddress(deviceId, consentToken, apiEndpoint)
+      .then(address => {
+        // Address: { "countryCode" : "US", "postalCode" : "98109" }
+        airQuality
+          .getByPostcode(address.postalCode)
+          .then(responseData => {
+            const message = responseData.message;
+            const shouldEndSession = responseData.shouldEndSession;
+
+            return buildResponse(message, shouldEndSession);
+          })
+          .then(response => {
+            callback(null, response);
+          });
+      })
+      .catch(err => {
+        // The user hasn't granted us permissions for their address, we need to prompt them for it
+        callback(null, {
+          version: '1.0',
+          response: {
+            outputSpeech: {
+              type: 'PlainText',
+              text: lang.get('requestFurtherPermissions'),
+            },
+            shouldEndSession: true,
+            card: {
+              type: 'AskForPermissionsConsent',
+              permissions: [
+                'read::alexa:device:all:address:country_and_postal_code',
+              ],
+            },
+          },
+        });
+      });
+  },
+
   /**
    * Returns the air quality value and additional information for the given city
    *
    * @param {object} event - the Alexa intent event object
    * @param {function} callback - the callback to use upon completion
    */
-  getAirQuality: (event, callback) => {
+  getCityAirQuality: (event, callback) => {
     const city = event.request.intent.slots.City.value;
 
     if (typeof city === 'undefined') {
