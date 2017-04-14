@@ -2,7 +2,6 @@
 const chai = require('chai');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
-
 const expect = chai.expect;
 
 const enStub = {
@@ -19,6 +18,7 @@ describe('lang', () => {
   describe('#()', () => {
     it('should return an object', () => {
       expect(lang('en')).to.be.an('object');
+      expect(lang('en').get).to.be.a('function');
     });
   });
 

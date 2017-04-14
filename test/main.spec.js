@@ -3,9 +3,7 @@ const chai = require('chai');
 const sinon = require('sinon');
 const lang = require('../app/lang/main')('en');
 const proxyquire = require('proxyquire');
-
-// Tell chai that we'll be using the "should" style assertions.
-const should = chai.should();
+const expect = chai.expect;
 
 const defraJsStub = {
   get: () =>
@@ -50,7 +48,7 @@ describe('main', () => {
   describe('#launch()', () => {
     it('should keep the session open when triggered', done => {
       app.launch((err, res) => {
-        res.response.shouldEndSession.should.be.false;
+        expect(res.response.shouldEndSession).to.be.false;
         done();
       });
     });
@@ -69,7 +67,7 @@ describe('main', () => {
           },
         },
         () => {
-          app.getIndexDescription.calledOnce.should.be.true;
+          expect(app.getIndexDescription.calledOnce).to.be.true;
           app.getIndexDescription.restore();
 
           done();
@@ -94,7 +92,7 @@ describe('main', () => {
           },
         },
         () => {
-          app.getAirQuality.calledOnce.should.be.true;
+          expect(app.getAirQuality.calledOnce).to.be.true;
           app.getAirQuality.restore();
 
           done();
@@ -114,7 +112,7 @@ describe('main', () => {
           },
         },
         () => {
-          app.help.calledOnce.should.be.true;
+          expect(app.help.calledOnce).to.be.true;
           app.help.restore();
 
           done();
@@ -134,7 +132,7 @@ describe('main', () => {
           },
         },
         () => {
-          app.stop.calledOnce.should.be.true;
+          expect(app.stop.calledOnce).to.be.true;
           app.stop.restore();
 
           done();
@@ -154,7 +152,7 @@ describe('main', () => {
           },
         },
         () => {
-          app.stop.calledOnce.should.be.true;
+          expect(app.stop.calledOnce).to.be.true;
           app.stop.restore();
 
           done();
@@ -174,7 +172,7 @@ describe('main', () => {
           },
         },
         () => {
-          app.unknownIntent.calledOnce.should.be.true;
+          expect(app.unknownIntent.calledOnce).to.be.true;
           app.unknownIntent.restore();
 
           done();
@@ -203,8 +201,10 @@ describe('main', () => {
       const stub = sinon.stub(defraJsStub, 'get').returns(Promise.reject({}));
 
       app.getAirQuality(buildRequest('Reading'), (err, res) => {
-        should.equal(err, null);
-        res.response.outputSpeech.text.should.equal(lang.get('unknownError'));
+        expect(err).to.be.null;
+        expect(res.response.outputSpeech.text).to.equal(
+          lang.get('unknownError')
+        );
 
         stub.restore();
         done();
@@ -213,8 +213,10 @@ describe('main', () => {
 
     it('should return a successful response in the callback with an invalid city message if no city is supplied', done => {
       app.getAirQuality(buildRequest(undefined), (err, res) => {
-        should.equal(err, null);
-        res.response.outputSpeech.text.should.equal(lang.get('invalidCity'));
+        expect(err).to.be.null;
+        expect(res.response.outputSpeech.text).to.equal(
+          lang.get('invalidCity')
+        );
 
         done();
       });
@@ -222,8 +224,8 @@ describe('main', () => {
 
     it('should return a successful response in the callback with a no matching location message if a matching city is not found', done => {
       app.getAirQuality(buildRequest('Non-existant city'), (err, res) => {
-        should.equal(err, null);
-        res.response.outputSpeech.text.should.equal(
+        expect(err).to.be.null;
+        expect(res.response.outputSpeech.text).to.equal(
           lang.get('noMatchingLocation', { city: 'Non-existant city' })
         );
 
@@ -233,8 +235,8 @@ describe('main', () => {
 
     it('should return a successful response in the callback with a single city message if a single matching city is found', done => {
       app.getAirQuality(buildRequest('Oxford St Ebbes'), (err, res) => {
-        should.equal(err, null);
-        res.response.outputSpeech.text.should.equal(
+        expect(err).to.be.null;
+        expect(res.response.outputSpeech.text).to.equal(
           `At the Oxford St Ebbes monitoring station, the current pollution level is low at index 1.`
         );
 
@@ -244,8 +246,8 @@ describe('main', () => {
 
     it('should return a successful response in the callback with a no value reported message if a single matching city is found but it is not reporting a value', done => {
       app.getAirQuality(buildRequest('London Teddington'), (err, res) => {
-        should.equal(err, null);
-        res.response.outputSpeech.text.should.equal(
+        expect(err).to.be.null;
+        expect(res.response.outputSpeech.text).to.equal(
           `The monitoring station at London Teddington is currently not reporting an air quality index, please try again later.`
         );
 
@@ -255,8 +257,8 @@ describe('main', () => {
 
     it('should return a successful response in the callback with a multi-city message if a multiple matching cities are found', done => {
       app.getAirQuality(buildRequest('Reading'), (err, res) => {
-        should.equal(err, null);
-        res.response.outputSpeech.text.should.equal(
+        expect(err).to.be.null;
+        expect(res.response.outputSpeech.text).to.equal(
           `At the Reading Central monitoring station, the current pollution level is low at index 2. I have found 1 other station in the location you requested, you might want to try this next time: Reading London Rd.`
         );
 

@@ -2,8 +2,6 @@
 const chai = require('chai');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
-
-// Tell chai that we'll be using the "should" style assertions.
 const expect = chai.expect;
 
 const mainStub = {
