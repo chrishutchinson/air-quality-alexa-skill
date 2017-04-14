@@ -1,4 +1,4 @@
-module.exports = (language) => {
+module.exports = language => {
   // Load in the strings for the supplied language
   const strings = require('./' + language);
 
@@ -6,12 +6,12 @@ module.exports = (language) => {
   return {
     get: (key, data) => {
       // If no matching string is found, return the key
-      if(typeof strings[key] === 'undefined') {
+      if (typeof strings[key] === 'undefined') {
         return key;
       }
 
       // Return the matching string
       return strings[key](data);
-    }
-  }
+    },
+  };
 };
