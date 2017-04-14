@@ -14,6 +14,15 @@ module.exports = (deviceId, consentToken, apiEndpoint) => {
           },
         }
       )
+      .then(response => {
+        switch (response.status) {
+          case 200:
+            return response;
+          default:
+            throw new Error(response.statusText);
+            return;
+        }
+      })
       .then(response => response.json())
       .then(json => {
         resolve(json);
