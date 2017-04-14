@@ -1,28 +1,44 @@
 'use strict';
 
 // Import Defra Air Quality parses
-const airQuality = require('defra-air-quality-js');
+const airQuality = require('./air-quality');
 
 // Import language strings
 const lang = require('./lang/main')('en');
 
-module.exports = {
+const buildResponse = (message, shouldEndSession) => ({
+  version: '1.0',
+  response: {
+    outputSpeech: {
+      type: 'PlainText',
+      text: message,
+    },
+    shouldEndSession: shouldEndSession,
+    card: {
+      type: 'Simple',
+      title: 'UK Air quality check',
+      content: message,
+    },
+  },
+});
 
+module.exports = {
   /**
    * Launch handler
    *
    * @param {function} callback - the callback to use upon completion
-   */ 
-  launch: (callback) => {
+   */
+
+  launch: callback => {
     callback(null, {
       version: '1.0',
       response: {
         outputSpeech: {
           type: 'PlainText',
-          text: lang.get('launch')
+          text: lang.get('launch'),
         },
-        shouldEndSession: false
-      }
+        shouldEndSession: false,
+      },
     });
   },
 
@@ -33,7 +49,7 @@ module.exports = {
    * @param {function} callback - the callback to use upon completion
    */
   intent: function(event, callback) {
-    switch(event.request.intent.name) {
+    switch (event.request.intent.name) {
       case 'GetIndexDescription':
         this.getIndexDescription(event, callback);
         return;
@@ -59,10 +75,10 @@ module.exports = {
       response: {
         outputSpeech: {
           type: 'PlainText',
-          text: lang.get('unknownIntent')
+          text: lang.get('unknownIntent'),
         },
-        shouldEndSession: false
-      }
+        shouldEndSession: false,
+      },
     });
   },
 
@@ -72,10 +88,10 @@ module.exports = {
       response: {
         outputSpeech: {
           type: 'PlainText',
-          text: lang.get('help')
+          text: lang.get('help'),
         },
-        shouldEndSession: false
-      }
+        shouldEndSession: false,
+      },
     });
   },
 
@@ -83,8 +99,8 @@ module.exports = {
     callback(null, {
       version: '1.0',
       response: {
-        shouldEndSession: true
-      }
+        shouldEndSession: true,
+      },
     });
   },
 
@@ -100,9 +116,9 @@ module.exports = {
       response: {
         outputSpeech: {
           type: 'PlainText',
-          text: lang.get('description')
-        }
-      }
+          text: lang.get('description'),
+        },
+      },
     });
   },
 
@@ -115,21 +131,22 @@ module.exports = {
   getAirQuality: (event, callback) => {
     const city = event.request.intent.slots.City.value;
 
-    if(typeof city === 'undefined') {
+    if (typeof city === 'undefined') {
       callback(null, {
         version: '1.0',
         response: {
           outputSpeech: {
             type: 'PlainText',
-            text: lang.get('invalidCity')
-          }
-        }
+            text: lang.get('invalidCity'),
+          },
+        },
       });
 
       return;
     }
 
-    airQuality()
+    airQuality
+      .get()
       .then(data => {
         return data.filter(location => {
           return location.title.includes(city);
@@ -139,65 +156,57 @@ module.exports = {
         let shouldEndSession = true;
         let message = lang.get('noMatchingLocation', { city: city });
 
-        if(locations.length === 0) {
+        if (locations.length === 0) {
           return {
             message: message,
-            shouldEndSession: shouldEndSession
+            shouldEndSession: shouldEndSession,
           };
         }
 
         const location = locations[0];
-        
-        if(typeof location.index === 'undefined') {
+
+        if (typeof location.index === 'undefined') {
           message = `The monitoring station at ${location.title} is currently not reporting an air quality index, please try again later.`;
         } else {
           message = `At the ${location.title} monitoring station, the ${location.description.toLowerCase()}.`;
         }
 
         locations = locations.filter(l => {
-          return (l.index !== 'undefined') &&
-                 (l.title !== location.title);
+          return l.index !== 'undefined' && l.title !== location.title;
         });
 
-        if(locations.length > 0) {
+        if (locations.length > 0) {
           const locationNames = locations.map(l => {
             return l.title;
           });
 
-          message += ` I have found ${locations.length} other ${(locations.length === 1 ? 'station' : 'stations')} in the location you requested, you might want to try${(locations.length === 1 ? ' this next time: ' : ' one of these next time: ')}`;
+          message += ` I have found ${locations.length} other ${locations.length === 1 ? 'station' : 'stations'} in the location you requested, you might want to try${locations.length === 1 ? ' this next time: ' : ' one of these next time: '}`;
 
-          message += [locationNames.slice(0, -1).join(', '),locationNames.slice(-1)[0]]
-                      .join(locationNames.length < 2 ? '' : ' and ');
+          message += [
+            locationNames.slice(0, -1).join(', '),
+            locationNames.slice(-1)[0],
+          ].join(locationNames.length < 2 ? '' : ' and ');
 
-          shouldEndSession = true;    
+          shouldEndSession = true;
         }
 
         return {
           message: message,
-          shouldEndSession: shouldEndSession
+          shouldEndSession: shouldEndSession,
         };
       })
       .then(responseData => {
         const message = responseData.message;
         const shouldEndSession = responseData.shouldEndSession;
 
-        return {
-          version: '1.0',
-          response: {
-            outputSpeech: {
-              type: 'PlainText',
-              text: message
-            },
-            shouldEndSession: shouldEndSession,
-            card: {
-              type: 'Simple',
-              title: 'UK Air quality check',
-              content: message
-            }
-          }
-        };
+        return buildResponse(message, shouldEndSession);
       })
-      .then(response => { callback(null, response) })
-      .catch(err => callback)
-  }
-}
+      .then(response => {
+        callback(null, response);
+      })
+      .catch(err => {
+        const response = buildResponse(lang.get('unknownError'), false);
+        callback(null, response);
+      });
+  },
+};

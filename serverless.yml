@@ -23,6 +23,8 @@ provider:
   stage: dev
   region: eu-west-1
   profile: chris-machine
+  environment:
+    ALEXA_APPLICATION_ID: ${file(./env.yml):ALEXA_APPLICATION_ID}
 
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:

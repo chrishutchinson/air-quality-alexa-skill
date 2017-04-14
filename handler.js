@@ -1,33 +1,33 @@
 'use strict';
 
-// Load env vars
-const env = require('./.env.json');
+// Load config
+const config = require('./config');
 
 // Load the core app
 const app = require('./app/main');
 
 // Validation methods all live in here
 const validation = {
-
   /**
    * Checks if the provided event is valid
    *
    * @param {object} event - the event to validate against
    */
-  isValidEvent: (event) => {
+  isValidEvent: event => {
     try {
       // Check if the event's applicationId matches the one this app is set up to use
-      return (event.session.application.applicationId === env.applicationId);
-    } catch(e) {
+      return (
+        event.session.application.applicationId === config.alexaApplicationId
+      );
+    } catch (e) {
       return false;
     }
-  }
-}
+  },
+};
 
 module.exports.quality = (event, context, callback) => {
-
   // Validate our event first
-  if(!validation.isValidEvent(event)) {
+  if (!validation.isValidEvent(event)) {
     callback('Request made from invalid application');
     return;
   }
@@ -36,7 +36,7 @@ module.exports.quality = (event, context, callback) => {
   const request = event.request;
 
   // Switch over the various request types Alexa provides
-  switch(request.type) {
+  switch (request.type) {
     case 'LaunchRequest': // When the skill is first launched. The user may say: "Alexa, open Air Quality"
       app.launch(callback);
       return;
