@@ -164,12 +164,12 @@ module.exports = {
             return l.title;
           });
 
-          message += ` I have found ${locations.length} other ${(locations.length === 1 ? 'station' : 'stations')} in the location you requested, you might want to try${(locations.length === 1 ? ': ' : ' one of these: ')}`;
+          message += ` I have found ${locations.length} other ${(locations.length === 1 ? 'station' : 'stations')} in the location you requested, you might want to try${(locations.length === 1 ? ' this next time: ' : ' one of these next time: ')}`;
 
           message += [locationNames.slice(0, -1).join(', '),locationNames.slice(-1)[0]]
                       .join(locationNames.length < 2 ? '' : ' and ');
 
-          shouldEndSession = false;    
+          shouldEndSession = true;    
         }
 
         return {

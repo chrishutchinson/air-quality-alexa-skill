@@ -7,13 +7,8 @@ const proxyquire = require('proxyquire');
 const should = chai.should();
 
 const mainStub = {
-  launch: (callback) => {
-    callback();
-  },
-
-  intent: (event, callback) => {
-    callback();
-  }
+  launch: () => {},
+  intent: () => {}
 }
 
 const envStub = {
@@ -43,6 +38,22 @@ describe('handler', () => {
       });
     });
 
+    it('should return an error in the callback if the event is invalid #3', (done) => {
+      handler.quality({
+        session: {
+          application: {
+            applicationId: 'invalid-application-id'
+          }
+        },
+        request: {
+          type: ''
+        }
+      }, {}, err => {
+        err.should.equal('Request made from invalid application');
+        done();
+      });
+    });
+
     it('should return a null error in the callback if the event is valid', (done) => {
       handler.quality({
         session: {
@@ -59,7 +70,7 @@ describe('handler', () => {
       });
     });
 
-    it('should call `app.launch` when a LaunchRequest is made', (done) => {
+    it('should call `app.launch` when a LaunchRequest is made', () => {
       sinon.spy(mainStub, 'launch');
       sinon.spy(mainStub, 'intent');
 
@@ -72,17 +83,15 @@ describe('handler', () => {
         request: {
           type: 'LaunchRequest'
         }
-      }, {}, () => {
-        mainStub.launch.calledOnce.should.be.true;
-        mainStub.intent.notCalled.should.be.true;
-        mainStub.launch.restore();
-        mainStub.intent.restore();
+      }, {}, () => {});
 
-        done();
-      });
+      mainStub.launch.calledOnce.should.be.true;
+      mainStub.intent.notCalled.should.be.true;
+      mainStub.launch.restore();
+      mainStub.intent.restore();
     });
 
-    it('should call `app.intent` when a IntentRequest is made', (done) => {
+    it('should call `app.intent` when a IntentRequest is made', () => {
       sinon.spy(mainStub, 'launch');
       sinon.spy(mainStub, 'intent');
 
@@ -95,18 +104,16 @@ describe('handler', () => {
         request: {
           type: 'IntentRequest'
         }
-      }, {}, () => {
-        mainStub.intent.calledOnce.should.be.true;
-        mainStub.launch.notCalled.should.be.true;
-        mainStub.intent.restore();
-        mainStub.launch.restore();
+      }, {}, () => {});
 
-        done();
-      });
+      mainStub.intent.calledOnce.should.be.true;
+      mainStub.launch.notCalled.should.be.true;
+      mainStub.intent.restore();
+      mainStub.launch.restore();
 
     });
 
-    it('should not call any methods when a SessionEndedRequest is made', (done) => {
+    it('should not call any methods when a SessionEndedRequest is made', () => {
       sinon.spy(mainStub, 'launch');
       sinon.spy(mainStub, 'intent');
 
@@ -119,14 +126,12 @@ describe('handler', () => {
         request: {
           type: 'SessionEndedRequest'
         }
-      }, {}, () => { });
+      }, {}, () => {});
+
       mainStub.intent.notCalled.should.be.true;
       mainStub.launch.notCalled.should.be.true;
       mainStub.intent.restore();
       mainStub.launch.restore();
-
-      done();
-
     });
 
   });

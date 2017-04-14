@@ -1,5 +1,14 @@
+# Node.js
 node_modules
+
+# Serverless
 .serverless
+
+# macOS
 .DS_Store
+
+# Application specific
 .env.json
+
+# Testing + code coverage
 coverage
