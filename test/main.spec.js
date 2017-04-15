@@ -6,7 +6,7 @@ const proxyquire = require('proxyquire');
 const expect = chai.expect;
 
 const defraJsStub = {
-  get: () =>
+  list: () =>
     Promise.resolve([
       {
         title: 'Oxford St Ebbes',
@@ -41,7 +41,7 @@ const defraJsStub = {
 };
 
 const app = proxyquire('../app/main', {
-  './air-quality': defraJsStub,
+  'defra-air-quality-js': defraJsStub,
 });
 
 describe('main', () => {
@@ -75,14 +75,14 @@ describe('main', () => {
       );
     });
 
-    it('should call app.getAirQuality() if the GetAirQuality intent is supplied', done => {
-      sinon.spy(app, 'getAirQuality');
+    it('should call app.GetAirQualityByCity() if the GetAirQuality intent is supplied', done => {
+      sinon.spy(app, 'getAirQualityByCity');
 
       app.intent(
         {
           request: {
             intent: {
-              name: 'GetAirQuality',
+              name: 'GetAirQualityByCity',
               slots: {
                 City: {
                   value: '',
@@ -92,8 +92,8 @@ describe('main', () => {
           },
         },
         () => {
-          expect(app.getAirQuality.calledOnce).to.be.true;
-          app.getAirQuality.restore();
+          expect(app.getAirQualityByCity.calledOnce).to.be.true;
+          app.getAirQualityByCity.restore();
 
           done();
         }
@@ -181,13 +181,13 @@ describe('main', () => {
     });
   });
 
-  describe('#getAirQuality()', () => {
+  describe('#getAirQualityByCity()', () => {
     const buildRequest = city => {
       return {
         request: {
           intent: {
             slots: {
-              name: 'GetAirQuality',
+              name: 'GetAirQualityByCity',
               City: {
                 value: city,
               },
@@ -198,9 +198,9 @@ describe('main', () => {
     };
 
     it('should return an error in the callback if `defra-air-quality-js` throws an error', done => {
-      const stub = sinon.stub(defraJsStub, 'get').returns(Promise.reject({}));
+      const stub = sinon.stub(defraJsStub, 'list').returns(Promise.reject({}));
 
-      app.getAirQuality(buildRequest('Reading'), (err, res) => {
+      app.getAirQualityByCity(buildRequest('Reading'), (err, res) => {
         expect(err).to.be.null;
         expect(res.response.outputSpeech.text).to.equal(
           lang.get('unknownError')
@@ -212,7 +212,7 @@ describe('main', () => {
     });
 
     it('should return a successful response in the callback with an invalid city message if no city is supplied', done => {
-      app.getAirQuality(buildRequest(undefined), (err, res) => {
+      app.getAirQualityByCity(buildRequest(undefined), (err, res) => {
         expect(err).to.be.null;
         expect(res.response.outputSpeech.text).to.equal(
           lang.get('invalidCity')
@@ -223,7 +223,7 @@ describe('main', () => {
     });
 
     it('should return a successful response in the callback with a no matching location message if a matching city is not found', done => {
-      app.getAirQuality(buildRequest('Non-existant city'), (err, res) => {
+      app.getAirQualityByCity(buildRequest('Non-existant city'), (err, res) => {
         expect(err).to.be.null;
         expect(res.response.outputSpeech.text).to.equal(
           lang.get('noMatchingLocation', { city: 'Non-existant city' })
@@ -234,7 +234,7 @@ describe('main', () => {
     });
 
     it('should return a successful response in the callback with a single city message if a single matching city is found', done => {
-      app.getAirQuality(buildRequest('Oxford St Ebbes'), (err, res) => {
+      app.getAirQualityByCity(buildRequest('Oxford St Ebbes'), (err, res) => {
         expect(err).to.be.null;
         expect(res.response.outputSpeech.text).to.equal(
           `At the Oxford St Ebbes monitoring station, the current pollution level is low at index 1.`
@@ -245,7 +245,7 @@ describe('main', () => {
     });
 
     it('should return a successful response in the callback with a no value reported message if a single matching city is found but it is not reporting a value', done => {
-      app.getAirQuality(buildRequest('London Teddington'), (err, res) => {
+      app.getAirQualityByCity(buildRequest('London Teddington'), (err, res) => {
         expect(err).to.be.null;
         expect(res.response.outputSpeech.text).to.equal(
           `The monitoring station at London Teddington is currently not reporting an air quality index, please try again later.`
@@ -256,7 +256,7 @@ describe('main', () => {
     });
 
     it('should return a successful response in the callback with a multi-city message if a multiple matching cities are found', done => {
-      app.getAirQuality(buildRequest('Reading'), (err, res) => {
+      app.getAirQualityByCity(buildRequest('Reading'), (err, res) => {
         expect(err).to.be.null;
         expect(res.response.outputSpeech.text).to.equal(
           `At the Reading Central monitoring station, the current pollution level is low at index 2. I have found 1 other station in the location you requested, you might want to try this next time: Reading London Rd.`
