@@ -1,3 +1,6 @@
+// Import fetch
+const fetchHelper = require('./fetch');
+
 module.exports = (deviceId, consentToken, apiEndpoint) => {
   return new Promise((resolve, reject) => {
     if (!deviceId) return reject(new Error('Invalid device ID'));

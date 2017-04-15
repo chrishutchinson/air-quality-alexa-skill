@@ -1,7 +1,7 @@
 'use strict';
 
-// Import Defra Air Quality parses
-const airQuality = require('./air-quality');
+// Import Defra Air Quality parser
+const airQuality = require('defra-air-quality-js');
 
 // Import language strings
 const lang = require('./lang/main')('en');
@@ -14,6 +14,28 @@ const getAlexaAddress = require('./helpers/get-alexa-address');
 
 // Import Alexa response builder
 const buildResponse = require('./helpers/build-alexa-response');
+
+const processAddress = address =>
+  new Promise((resolve, reject) => {
+    // Address: { "countryCode" : "US", "postalCode" : "98109" }
+    fetchHelper
+      .fetch(`https://api.postcodes.io/postcodes/${address.postalCode}`)
+      .then(response => {
+        switch (response.status) {
+          case 200:
+            return response;
+          default:
+            throw new Error('Unable to process address');
+        }
+      })
+      .then(response => response.json())
+      .then(json => {
+        resolve(json.result);
+      })
+      .catch(err => {
+        reject(err);
+      });
+  });
 
 module.exports = {
   /**
@@ -45,11 +67,11 @@ module.exports = {
       case 'GetIndexDescription':
         this.getIndexDescription(event, callback);
         return;
-      case 'GetAirQuality':
-        this.getCityAirQuality(event, callback);
+      case 'GetAirQualityByCity':
+        this.getAirQualityByCity(event, callback);
         return;
-      case 'GetLocalAirQuality':
-        this.getLocalAirQuality(event, callback);
+      case 'GetAirQualityByAddress':
+        this.getAirQualityByAddress(event, callback);
         return;
       case 'AMAZON.HelpIntent':
         this.help(event, callback);
@@ -117,25 +139,39 @@ module.exports = {
     });
   },
 
-  getLocalAirQuality: (event, callback) => {
+  getAirQualityByAddress: (event, callback) => {
     const deviceId = event.context.System.device.deviceId;
     const consentToken = event.context.System.user.permissions.consentToken;
     const apiEndpoint = event.context.System.apiEndpoint;
 
     getAlexaAddress(deviceId, consentToken, apiEndpoint)
-      .then(address => {
-        // Address: { "countryCode" : "US", "postalCode" : "98109" }
-        airQuality
-          .getByPostcode(address.postalCode)
-          .then(responseData => {
-            const message = responseData.message;
-            const shouldEndSession = responseData.shouldEndSession;
+      .then(processAddress)
+      .then(({ latitude, longitude }) => {
+        return airQuality
+          .findByNearestLocation(latitude, longitude)
+          .then(station => {
+            let message;
 
-            return buildResponse(message, shouldEndSession);
-          })
-          .then(response => {
-            callback(null, response);
+            if (typeof station.index === 'undefined') {
+              message = `The monitoring station at ${station.title} is currently not reporting an air quality index, please try again later.`;
+            } else {
+              message = `At the ${station.title} monitoring station, the ${station.description.toLowerCase()}.`;
+            }
+
+            return {
+              message,
+              shouldEndSession: true,
+            };
           });
+      })
+      .then(responseData => {
+        const message = responseData.message;
+        const shouldEndSession = responseData.shouldEndSession;
+
+        return buildResponse(message, shouldEndSession);
+      })
+      .then(response => {
+        callback(null, response);
       })
       .catch(err => {
         // The user hasn't granted us permissions for their address, we need to prompt them for it
@@ -164,7 +200,7 @@ module.exports = {
    * @param {object} event - the Alexa intent event object
    * @param {function} callback - the callback to use upon completion
    */
-  getCityAirQuality: (event, callback) => {
+  getAirQualityByCity: (event, callback) => {
     const city = event.request.intent.slots.City.value;
 
     if (typeof city === 'undefined') {
@@ -182,7 +218,7 @@ module.exports = {
     }
 
     airQuality
-      .get()
+      .list()
       .then(data => {
         return data.filter(location => {
           return location.title.includes(city);

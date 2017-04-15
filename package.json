@@ -10,7 +10,7 @@
   "author": "Chris Hutchinson",
   "license": "ISC",
   "dependencies": {
-    "defra-air-quality-js": "^1.0.0",
+    "defra-air-quality-js": "^2.0.0",
     "node-fetch": "^1.6.3"
   },
   "devDependencies": {
