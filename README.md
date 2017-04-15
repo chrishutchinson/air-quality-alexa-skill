@@ -2,7 +2,7 @@
 
 > Alexa skill for reporting the Defra (Department for Environment, Food & Rural Affairs) air quality index
 
-[![Build Status](https://travis-ci.org/chrishutchinson/air-quality-alexa-skill.svg?branch=master)](https://travis-ci.org/chrishutchinson/air-quality-alexa-skill)
+[![Build Status](https://travis-ci.org/chrishutchinson/air-quality-alexa-skill.svg?branch=master)](https://travis-ci.org/chrishutchinson/air-quality-alexa-skill)  [![codecov](https://codecov.io/gh/chrishutchinson/air-quality-alexa-skill/branch/master/graph/badge.svg)](https://codecov.io/gh/chrishutchinson/air-quality-alexa-skill)
 
 ## Usage
 
