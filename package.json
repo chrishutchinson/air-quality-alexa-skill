@@ -5,7 +5,8 @@
   "main": "handler.js",
   "scripts": {
     "deploy": "serverless deploy",
-    "test": "jest --coverage",
+    "test": "jest --coverage --config ./jest-unit.config.json",
+    "test:functional": "jest --config ./jest-functional.config.json",
     "lint": "eslint ."
   },
   "author": "Chris Hutchinson",
