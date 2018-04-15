@@ -1,152 +1,176 @@
-// Import chai.
-const chai = require('chai');
-const sinon = require('sinon');
-const proxyquire = require('proxyquire');
-const expect = chai.expect;
+jest.mock("../app/launch", () => jest.fn());
+jest.mock("../app/intent", () => jest.fn());
+jest.mock("../app/helpers/is-event-valid", () => jest.fn());
+const launch = require("../app/launch");
+const intent = require("../app/intent");
+const isEventValid = require("../app/helpers/is-event-valid");
+const handler = require("../handler");
 
-const mainStub = {
-  launch: () => {},
-  intent: () => {},
-};
-
-const configStub = {
-  alexaApplicationId: 'sample-application-id',
-};
-
-const handler = proxyquire('../handler', {
-  './config': configStub,
-  './app/main': mainStub,
-});
-
-describe('handler', () => {
-  describe('#quality()', () => {
-    it('should return an error in the callback if the event is invalid', done => {
-      handler.quality(null, {}, err => {
-        expect(err).to.equal('Request made from invalid application');
-        done();
-      });
+describe("handler", () => {
+  describe("#quality()", () => {
+    beforeEach(() => {
+      isEventValid.mockImplementation(() => true);
     });
 
-    it('should return an error in the callback if the event is invalid #2', done => {
+    afterEach(() => {
+      jest.resetAllMocks();
+      jest.resetModules();
+    });
+
+    it("should return an error in the callback if the event is invalid", done => {
+      isEventValid.mockImplementation(() => false);
+
       handler.quality({}, {}, err => {
-        expect(err).to.equal('Request made from invalid application');
+        expect(err).toEqual("Request made from invalid application");
         done();
       });
     });
 
-    it('should return an error in the callback if the event is invalid #3', done => {
+    it("should return an error in the callback if the request cannot be fulfilled", done => {
+      launch.mockImplementation(() => Promise.reject("Some error"));
+
       handler.quality(
         {
           session: {
             application: {
-              applicationId: 'invalid-application-id',
-            },
+              applicationId: "test-application-id"
+            }
           },
           request: {
-            type: '',
-          },
+            type: "LaunchRequest"
+          }
         },
         {},
         err => {
-          expect(err).to.equal('Request made from invalid application');
+          expect(err).toEqual("Some error");
           done();
         }
       );
     });
 
-    it('should return a null error in the callback if the event is valid', done => {
+    it("should call `app.launch` when a LaunchRequest is made", () => {
+      launch.mockImplementation(() => Promise.resolve({}));
+
       handler.quality(
         {
           session: {
             application: {
-              applicationId: 'sample-application-id',
-            },
+              applicationId: "sample-application-id"
+            }
           },
           request: {
-            type: '',
-          },
+            type: "LaunchRequest"
+          }
         },
         {},
-        err => {
-          expect(err).to.be.null;
+        () => {}
+      );
+
+      expect(launch).toHaveBeenCalledTimes(1);
+    });
+
+    it("should return a response in the callback if a valid LaunchReqest is made", done => {
+      launch.mockImplementation(() => Promise.resolve({ foo: "bar" }));
+
+      handler.quality(
+        {
+          session: {
+            application: {
+              applicationId: "test-application-id"
+            }
+          },
+          request: {
+            type: "LaunchRequest"
+          }
+        },
+        {},
+        (err, response) => {
+          expect(err).toEqual(null);
+          expect(response).toEqual({
+            version: "1.0",
+            response: { foo: "bar" }
+          });
           done();
         }
       );
     });
 
-    it('should call `app.launch` when a LaunchRequest is made', () => {
-      sinon.spy(mainStub, 'launch');
-      sinon.spy(mainStub, 'intent');
-
+    it("should call `app.intent` when a IntentRequest is made", () => {
       handler.quality(
         {
           session: {
             application: {
-              applicationId: 'sample-application-id',
-            },
+              applicationId: "sample-application-id"
+            }
           },
           request: {
-            type: 'LaunchRequest',
-          },
+            type: "IntentRequest"
+          }
         },
         {},
         () => {}
       );
 
-      expect(mainStub.launch.calledOnce).to.be.true;
-      expect(mainStub.intent.notCalled).to.be.true;
-      mainStub.launch.restore();
-      mainStub.intent.restore();
+      expect(intent).toHaveBeenCalledWith({
+        session: {
+          application: {
+            applicationId: "sample-application-id"
+          }
+        },
+        request: {
+          type: "IntentRequest"
+        }
+      });
     });
 
-    it('should call `app.intent` when a IntentRequest is made', () => {
-      sinon.spy(mainStub, 'launch');
-      sinon.spy(mainStub, 'intent');
+    it("should return a response in the callback if a valid IntentRequest is made", done => {
+      intent.mockImplementation(() => Promise.resolve({ foo: "baz" }));
 
       handler.quality(
         {
           session: {
             application: {
-              applicationId: 'sample-application-id',
-            },
+              applicationId: "test-application-id"
+            }
           },
           request: {
-            type: 'IntentRequest',
-          },
+            type: "IntentRequest"
+          }
         },
         {},
-        () => {}
+        (err, response) => {
+          expect(err).toEqual(null);
+          expect(response).toEqual({
+            version: "1.0",
+            response: { foo: "baz" }
+          });
+          done();
+        }
       );
-
-      expect(mainStub.intent.calledOnce).to.be.true;
-      expect(mainStub.launch.notCalled).to.be.true;
-      mainStub.intent.restore();
-      mainStub.launch.restore();
     });
 
-    it('should not call any methods when a SessionEndedRequest is made', () => {
-      sinon.spy(mainStub, 'launch');
-      sinon.spy(mainStub, 'intent');
-
+    it("should return a response in the callback if a valid SessionEndedRequest is made", done => {
       handler.quality(
         {
           session: {
             application: {
-              applicationId: 'sample-application-id',
-            },
+              applicationId: "test-application-id"
+            }
           },
           request: {
-            type: 'SessionEndedRequest',
-          },
+            type: "SessionEndedRequest"
+          }
         },
         {},
-        () => {}
+        (err, response) => {
+          expect(err).toEqual(null);
+          expect(response).toEqual({
+            version: "1.0",
+            response: null
+          });
+          done();
+        }
       );
-
-      expect(mainStub.intent.notCalled).to.be.true;
-      expect(mainStub.launch.notCalled).to.be.true;
-      mainStub.intent.restore();
-      mainStub.launch.restore();
     });
   });
 });

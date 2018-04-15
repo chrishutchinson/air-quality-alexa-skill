@@ -1,15 +1,12 @@
-module.exports = (message, shouldEndSession) => ({
-  version: '1.0',
-  response: {
-    outputSpeech: {
-      type: 'PlainText',
-      text: message,
-    },
-    shouldEndSession: shouldEndSession,
-    card: {
-      type: 'Simple',
-      title: 'UK Air quality check',
-      content: message,
-    },
+module.exports = (message, shouldEndSession = false) => ({
+  outputSpeech: message && {
+    type: "PlainText",
+    text: message
   },
+  shouldEndSession: shouldEndSession,
+  card: message && {
+    type: "Simple",
+    title: "UK Air quality check",
+    content: message
+  }
 });

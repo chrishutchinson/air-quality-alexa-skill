@@ -5,7 +5,7 @@
   "main": "handler.js",
   "scripts": {
     "deploy": "serverless deploy",
-    "test": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --recursive"
+    "test": "jest --coverage"
   },
   "author": "Chris Hutchinson",
   "license": "ISC",
@@ -16,6 +16,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "istanbul": "^0.4.5",
+    "jest": "^22.4.3",
     "mocha": "^3.2.0",
     "proxyquire": "^1.7.10",
     "sinon": "^1.17.6"
