@@ -2,8 +2,9 @@ const lang = require("../lang/main")("en");
 const launch = require("../launch");
 
 describe("#launch()", () => {
-  it("should keep the session open when triggered", () => {
+  it("should respond with the correct message", () => {
     const response = launch();
+
     expect(response).toEqual({
       outputSpeech: {
         type: "PlainText",
