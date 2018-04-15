@@ -1,6 +1,6 @@
 module.exports = language => {
   // Load in the strings for the supplied language
-  const strings = require("./" + language)();
+  const strings = require("./" + language);
 
   // Return an object that returns either the matching string, or the supplied key if no matching string is found
   return {

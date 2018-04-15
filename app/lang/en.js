@@ -1,4 +1,4 @@
-module.exports = () => ({
+module.exports = {
   launch: () =>
     `You can ask for the latest air quality data for a given location, like so: "Alexa ask Air Quality what the air quality is today in Liverpool". If you need more details on the air quality index, ask: "Alexa ask Air Quality what the air quality index scale is".`,
 
@@ -22,4 +22,4 @@ module.exports = () => ({
 
   requestFurtherPermissions: () =>
     `To ask for Air Quality data by postcode, you must grant additional permissions. Please check the Alexa app, where you can grant these, and try asking again. If you choose not to grant these permissions, you can still ask for air quality data, but must ask for a specific location, like so: "Alexa ask Air Quality what is it like today in Liverpool".`
-});
+};

@@ -1,10 +1,7 @@
-jest.mock("../en", () =>
-  jest.fn(() => ({
-    someString: () => `This is my string`,
-    someStringWithData: data =>
-      `This is my string, and your name is ${data.name}`
-  }))
-);
+jest.mock("../en", () => ({
+  someString: () => `This is my string`,
+  someStringWithData: data => `This is my string, and your name is ${data.name}`
+}));
 const en = require("../en");
 const lang = require("../main");
 
