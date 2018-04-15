@@ -22,7 +22,6 @@ module.exports = (deviceId, consentToken, apiEndpoint) => {
           return response;
         default:
           throw new Error(response.statusText);
-          return;
       }
     })
     .then(response => response.json());

@@ -1,4 +1,6 @@
-const handler = require('./handler');
+/* eslint-disable no-unused-vars */
+
+const handler = require("./handler");
 
 // Place the Alexa testing JSON here
 const jsonWithAddressPermissions = `{
@@ -118,7 +120,7 @@ const jsonWithoutAddressPermissions = `{
 // This will run the Alexa testing code through the handler and log the output to the console
 handler.quality(JSON.parse(jsonWithoutAddressPermissions), {}, (err, res) => {
   if (err) {
-    console.log('[ERR]', err);
+    console.log("[ERR]", err);
   } else {
     console.log(res);
   }
