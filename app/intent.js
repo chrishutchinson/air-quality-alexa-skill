@@ -28,11 +28,10 @@ const processAddress = address =>
     .then(({ result }) => result);
 
 const getAirQualityByAddress = event => {
-  const deviceId = event.context.System.device.deviceId;
-  const consentToken = event.context.System.user.permissions.consentToken;
-  const apiEndpoint = event.context.System.apiEndpoint;
+  const { deviceId } = event.context.System.device;
+  const { apiEndpoint, apiAccessToken } = event.context.System;
 
-  return getAlexaAddress(deviceId, consentToken, apiEndpoint)
+  return getAlexaAddress(deviceId, apiAccessToken, apiEndpoint)
     .then(processAddress)
     .then(({ latitude, longitude }) =>
       airQuality.findByNearestLocation(latitude, longitude)
@@ -79,7 +78,11 @@ const getAirQualityByCity = event => {
 
   return airQuality
     .list()
-    .then(data => data.filter(location => location.title.includes(city)))
+    .then(data =>
+      data.filter(location =>
+        location.title.toLowerCase().includes(city.toLowerCase())
+      )
+    )
     .then(locations => {
       let shouldEndSession = true;
       let message = lang.get("noMatchingLocation", { city });

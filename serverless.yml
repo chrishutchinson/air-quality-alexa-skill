@@ -7,11 +7,17 @@ service: alexa-air-quality-skill
 provider:
   name: aws
   runtime: nodejs8.10
-  stage: dev
-  region: eu-west-1
-  profile: chris-machine
+  region: ${opt:region, self:custom.region}
+  stage: ${opt:stage, self:custom.stage}
+  profile: ${opt:profile}
+  deploymentBucket: ${opt:deploymentBucket}
   environment:
+    ENV: ${opt:stage, self:custom.stage}
     ALEXA_APPLICATION_ID: ${file(./env.yml):ALEXA_APPLICATION_ID}
+
+custom:
+  region: eu-west-1
+  stage: dev
 
 functions:
   quality:

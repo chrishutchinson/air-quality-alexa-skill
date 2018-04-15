@@ -47,13 +47,4 @@ module.exports.quality = async (event, context, callback) => {
     version: "1.0",
     response
   });
-
-  // console.log('event', event);
-  // console.log('event.session.user.permissions', event.session.user.permissions);
-  // console.log(
-  //   'event.context.System.application',
-  //   event.context.System.application
-  // );
-  // console.log('event.context.System.user', event.context.System.user);
-  // console.log('event.context.System.device', event.context.System.device);
 };

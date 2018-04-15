@@ -1,9 +1,9 @@
 // Import fetch
 const fetchHelper = require("./fetch");
 
-module.exports = (deviceId, consentToken, apiEndpoint) => {
+module.exports = (deviceId, apiAccessToken, apiEndpoint) => {
   if (!deviceId) return Promise.reject("Invalid device ID");
-  if (!consentToken) return Promise.reject("Invalid consent token");
+  if (!apiAccessToken) return Promise.reject("Invalid access token");
   if (!apiEndpoint) return Promise.reject("Invalid API endpoint");
 
   return fetchHelper
@@ -12,7 +12,7 @@ module.exports = (deviceId, consentToken, apiEndpoint) => {
       {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${consentToken}`
+          Authorization: `Bearer ${apiAccessToken}`
         }
       }
     )

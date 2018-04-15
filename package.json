@@ -6,7 +6,7 @@
   "scripts": {
     "deploy": "serverless deploy",
     "test": "jest --coverage --config ./jest-unit.config.json",
-    "test:functional": "jest --config ./jest-functional.config.json",
+    "test:functional": "jest ./__tests__/functional.test.js",
     "lint": "eslint ."
   },
   "author": "Chris Hutchinson",
