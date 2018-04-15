@@ -17,6 +17,28 @@ module.exports = {
   noMatchingLocation: data =>
     `I'm sorry, I couldn't find any monitoring stations in ${data.city}.`,
 
+  locationNotReporting: data =>
+    `The monitoring station at ${
+      data.city
+    } is currently not reporting an air quality index, please try again later.`,
+
+  locationReport: data =>
+    `At the ${data.city} monitoring station, the ${data.text.toLowerCase()}.`,
+
+  additionalLocations: data => {
+    const count = data.locations.length;
+    const station = count === 1 ? "station" : "stations";
+    const nextTime =
+      count === 1 ? "this next time:" : "one of these next time:";
+
+    const otherLocations = [
+      data.locations.slice(0, -1).join(", "),
+      data.locations.slice(-1)[0]
+    ].join(count < 2 ? "" : " and ");
+
+    return `I have found ${count} other ${station} in the location you requested, you might want to try ${nextTime} ${otherLocations}`;
+  },
+
   unknownError: () =>
     `I'm sorry, I'm not able to access DEFRA's Air Quality data right now, please try again later.`,
 

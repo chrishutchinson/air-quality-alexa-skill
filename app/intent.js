@@ -41,13 +41,12 @@ const getAirQualityByAddress = event => {
       let message;
 
       if (typeof station.index === "undefined") {
-        message = `The monitoring station at ${
-          station.title
-        } is currently not reporting an air quality index, please try again later.`;
+        message = lang.get("locationNotReporting", { city: station.title });
       } else {
-        message = `At the ${
-          station.title
-        } monitoring station, the ${station.description.toLowerCase()}.`;
+        message = lang.get("locationReport", {
+          city: station.title,
+          text: station.description
+        });
       }
 
       return {
@@ -76,19 +75,14 @@ const getAirQualityByCity = event => {
   const city = event.request.intent.slots.City.value;
 
   if (typeof city === "undefined")
-    return Promise.resolve({
-      outputSpeech: {
-        type: "PlainText",
-        text: lang.get("invalidCity")
-      }
-    });
+    return buildResponse(lang.get("invalidCity"));
 
   return airQuality
     .list()
     .then(data => data.filter(location => location.title.includes(city)))
     .then(locations => {
       let shouldEndSession = true;
-      let message = lang.get("noMatchingLocation", { city: city });
+      let message = lang.get("noMatchingLocation", { city });
 
       if (locations.length === 0)
         return {
@@ -99,35 +93,22 @@ const getAirQualityByCity = event => {
       const [location] = locations;
 
       if (typeof location.index === "undefined") {
-        message = `The monitoring station at ${
-          location.title
-        } is currently not reporting an air quality index, please try again later.`;
+        message = lang.get("locationNotReporting", { city: location.title });
       } else {
-        message = `At the ${
-          location.title
-        } monitoring station, the ${location.description.toLowerCase()}.`;
+        message = lang.get("locationReport", {
+          city: location.title,
+          text: location.description
+        });
       }
 
-      const filteredLocations = locations.filter(
+      const otherLocations = locations.filter(
         l => l.index !== "undefined" && l.title !== location.title
       );
 
-      if (filteredLocations.length > 0) {
-        const locationNames = filteredLocations.map(l => l.title);
-
-        message += ` I have found ${filteredLocations.length} other ${
-          filteredLocations.length === 1 ? "station" : "stations"
-        } in the location you requested, you might want to try${
-          filteredLocations.length === 1
-            ? " this next time: "
-            : " one of these next time: "
-        }`;
-
-        message += [
-          locationNames.slice(0, -1).join(", "),
-          locationNames.slice(-1)[0]
-        ].join(locationNames.length < 2 ? "" : " and ");
-
+      if (otherLocations.length > 0) {
+        message += ` ${lang.get("additionalLocations", {
+          locations: otherLocations.map(l => l.title)
+        })}`;
         shouldEndSession = true;
       }
 
