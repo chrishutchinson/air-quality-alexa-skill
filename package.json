@@ -16,12 +16,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^8.2.3",
-    "chai": "^3.5.0",
     "eslint": "^4.19.1",
-    "istanbul": "^0.4.5",
-    "jest": "^22.4.3",
-    "mocha": "^3.2.0",
-    "proxyquire": "^1.7.10",
-    "sinon": "^1.17.6"
+    "jest": "^22.4.3"
   }
 }
