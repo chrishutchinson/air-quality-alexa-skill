@@ -129,7 +129,7 @@ const getAirQualityByCity = event => {
 module.exports = event => {
   switch (event.request.intent.name) {
     case "GetIndexDescription":
-      return buildResponse(lang.get("description"));
+      return buildResponse(lang.get("description"), true);
     case "GetAirQualityByCity":
       return getAirQualityByCity(event);
     case "GetAirQualityByAddress":

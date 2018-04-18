@@ -24,11 +24,11 @@ describe("#getAlexaAddress()", () => {
     });
   });
 
-  it("should reject if a consent token is not provided", () => {
+  it("should reject if a access token is not provided", () => {
     expect.assertions(1);
 
     return getAlexaAddress("device-id", null).catch(e => {
-      expect(e).toEqual("Invalid consent token");
+      expect(e).toEqual("Invalid access token");
     });
   });
 

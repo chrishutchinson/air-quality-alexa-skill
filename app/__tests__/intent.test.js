@@ -140,7 +140,7 @@ describe("#intent()", () => {
         type: "PlainText",
         text: lang.get("description")
       },
-      shouldEndSession: false,
+      shouldEndSession: true,
       card: {
         content: lang.get("description"),
         title: "UK Air quality check",
