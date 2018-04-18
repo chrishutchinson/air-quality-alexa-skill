@@ -1,22 +1,23 @@
 {
   "name": "alexa-air-quality",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "",
   "main": "handler.js",
   "scripts": {
     "deploy": "serverless deploy",
-    "test": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha"
+    "test": "jest --coverage --config ./jest-unit.config.json",
+    "test:functional": "jest ./__tests__/functional.test.js",
+    "lint": "eslint ."
   },
   "author": "Chris Hutchinson",
   "license": "ISC",
   "dependencies": {
-    "defra-air-quality-js": "^1.0.0"
+    "defra-air-quality-js": "^2.0.0",
+    "node-fetch": "^1.6.3"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
-    "istanbul": "^0.4.5",
-    "mocha": "^3.2.0",
-    "proxyquire": "^1.7.10",
-    "sinon": "^1.17.6"
+    "babel-eslint": "^8.2.3",
+    "eslint": "^4.19.1",
+    "jest": "^22.4.3"
   }
 }

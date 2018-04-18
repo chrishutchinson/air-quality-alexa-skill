@@ -1,5 +1,6 @@
 # Node.js
 node_modules
+yarn-*.log
 
 # Serverless
 .serverless
@@ -8,7 +9,8 @@ node_modules
 .DS_Store
 
 # Application specific
-.env.json
+env.yml
+tester.local.js
 
 # Testing + code coverage
 coverage

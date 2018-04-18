@@ -1,55 +1,50 @@
-'use strict';
+const launch = require("./app/launch");
+const intent = require("./app/intent");
+const isEventValid = require("./app/helpers/is-event-valid");
 
-// Load env vars
-const env = require('./.env.json');
+const asyncResponse = res =>
+  Promise.resolve(res)
+    .then(response => ({
+      err: null,
+      response
+    }))
+    .catch(err => ({
+      err,
+      response: null
+    }));
 
-// Load the core app
-const app = require('./app/main');
+const makeRequest = event => {
+  // Switch over the various request types Alexa provides
+  switch (event.request.type) {
+    case "LaunchRequest": // When the skill is first launched. The user may say: "Alexa, open Air Quality"
+      return asyncResponse(launch());
 
-// Validation methods all live in here
-const validation = {
+    case "IntentRequest": // When the user makes an voice request, like asking a question: "Alexa, ask Air Quality what the air quality is today in Liverpool"
+      return asyncResponse(intent(event));
 
-  /**
-   * Checks if the provided event is valid
-   *
-   * @param {object} event - the event to validate against
-   */
-  isValidEvent: (event) => {
-    try {
-      // Check if the event's applicationId matches the one this app is set up to use
-      return (event.session.application.applicationId === env.applicationId);
-    } catch(e) {
-      return false;
-    }
+    case "SessionEndedRequest":
+      // Session ended, cannot send response
+      return asyncResponse(Promise.resolve(null));
   }
-}
+};
 
-module.exports.quality = (event, context, callback) => {
-
+module.exports.quality = async (event, context, callback) => {
   // Validate our event first
-  if(!validation.isValidEvent(event)) {
-    callback('Request made from invalid application');
+  if (!isEventValid(event)) {
+    callback("Request made from invalid application");
     return;
   }
 
-  // Grab the request for future use
-  const request = event.request;
+  const { err, response } = await makeRequest(event);
 
-  // Switch over the various request types Alexa provides
-  switch(request.type) {
-    case 'LaunchRequest': // When the skill is first launched. The user may say: "Alexa, open Air Quality"
-      app.launch(callback);
-      return;
-
-    case 'IntentRequest': // When the user makes an voice request, like asking a question: "Alexa, ask Air Quality what the air quality is today in Liverpool"
-      app.intent(event, callback);
-      return;
-
-    case 'SessionEndedRequest':
-      // Session ended, cannot send response
-      return;
+  if (err) {
+    callback(err);
+    return;
   }
 
   // If all else fails, send an empty response
-  callback(null, {});
+  callback(null, {
+    version: "1.0",
+    response
+  });
 };
